@@ -7,7 +7,7 @@ import RPi.GPIO as GPIO
 import time
 
 GPIO.setmode(GPIO.BOARD)
-control_pins = [11, 12, 13, 15]
+control_pins = [17, 18, 27, 22]
 step_sequence = [[1,0,0,1],
                  [1,0,0,0],
                  [1,1,0,0],
