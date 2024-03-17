@@ -1,10 +1,11 @@
 import time
 from sensing import SensorMgr
 from servo_driver import Servo
+from imu.simpleimu import gravity_fps
 
 
 def simulated_apogee(mgr):
-    pass
+    return mgr.velocity ** 2 / (2 * gravity_fps)
 
 
 def main(target_apogee, target_offset=5):
