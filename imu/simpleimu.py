@@ -16,7 +16,7 @@
 
 
 import time
-import IMU
+from . import IMU
 
 
 IMU.detectIMU()     #Detect if BerryIMU is connected.
@@ -24,6 +24,7 @@ if(IMU.BerryIMUversion == 99):
     print(" No BerryIMU found... exiting ")
     sys.exit()
 IMU.initIMU()       #Initialise the accelerometer, gyroscope and compass
+gravity_fps = 32.17405
 
 
 def read_data():
@@ -31,10 +32,31 @@ def read_data():
     ACCx = IMU.readACCx()
     ACCy = IMU.readACCy()
     ACCz = IMU.readACCz()
-    return ACCx, ACCy, ACCz
+    acc = [ACCx, ACCy, ACCz]
+
+    acc_in_gs = [i * .244 / 1000 for i in acc]
+    return [i * gravity_fps for i in acc_in_gs]
+
+
+def read_net_acc():
+    data = read_data()
+    xy = (data[0] ** 2 + data[1] ** 2) ** .5
+    xyz = (xy ** 2 + data[2] ** 2) ** .5
+    return xyz
+
+
+def sample(size):
+    return [read_net_acc() for _ in range(size)]
+
+
+def sample_time(duration):
+    st = time.time()
+    data = []
+    while time.time() < st + duration:
+        data.append(read_net_acc())
+    return data
 
 
 if __name__ == '__main__':
-    while True:
-        print(read_data())
-        time.sleep(.003)
+    results = sample_time(5)
+    print(len(results), sum(results) / len(results))
