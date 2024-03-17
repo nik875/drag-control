@@ -37,6 +37,9 @@ class SensorMgr:
         self.last_measurement = time.time()
         if self.state != 'ground':
             self.velocity += (delta if self.state == 'engine_burn' else -delta)
+            if self.velocity <= 0:
+                self.state = 'descent'
+                self.logger.log_data(self.generate_report())
         else:
             self.velocity = 0
         self.current_altitude = alt.sample_time(.01)
@@ -70,10 +73,6 @@ class SensorMgr:
                 stats.ttest_1samp(self.data, self.baseline)[1] >= self.alpha:
             self.record_data()
         self.state = 'ascent'
-
-    def detect_inflection(self):
-        # wait in loop until altitude starts falling
-        self.state = 'descent'
 
     def detect_landing(self):
         # wait in loop until we land
